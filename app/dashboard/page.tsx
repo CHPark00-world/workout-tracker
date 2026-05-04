@@ -9,23 +9,29 @@ import {
   useDeleteWorkout,
 } from '@/hooks/use-workouts'
 import { signOut } from '@/lib/auth'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ExerciseList from '@/components/ui/exercise-list'
+import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
   const { user, loading } = useAuth()
   const { data: workouts } = useWorkouts(user?.id ?? '')
   const createWorkout = useCreateWorkout()
   const deleteWorkout = useDeleteWorkout()
+  const router = useRouter()
 
   const [date, setDate] = useState('')
   const [note, setNote] = useState('')
   const [selectedExercise, setSelectedExercise] = useState('')
 
-  if (loading) return <div className="p-8">로딩 중...</div>
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
 
-  console.log('user:', user?.id)
-  console.log('workouts:', workouts)
+  if (loading) return <div className="p-8">로딩 중...</div>
+  if (!user) return null
 
   const handleSubmit = () => {
     if (!date || !user) return
